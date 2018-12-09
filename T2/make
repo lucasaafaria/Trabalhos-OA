@@ -1,0 +1,3 @@
+mkdir -p lib
+g++ -o lib/btree.o -c btree.cpp
+g++ lib/* $1

@@ -9,7 +9,7 @@ BTreeNode::BTreeNode(int t1, bool leaf1) {
 
   // Allocate memory for maximum number of possible keys 
   // and child pointers 
-  keys = new string[2*t-1]; 
+  keys = new Key[2*t-1]; 
   C = new BTreeNode *[2*t]; 
 
   // Initialize the number of keys as 0 
@@ -18,19 +18,19 @@ BTreeNode::BTreeNode(int t1, bool leaf1) {
 
 // A utility function that returns the index of the first key that is 
 // greater than or equal to k 
-int BTreeNode::findKey(string k) {
+int BTreeNode::findKey(Key k) {
   int idx=0; 
-  while (idx<n && keys[idx] < k) 
+  while (idx<n && keys[idx].getKey() < k.getKey()) 
     ++idx; 
   return idx; 
 } 
 
 // A function to remove the key k from the sub-tree rooted with this node 
-void BTreeNode::remove(string k) {
+void BTreeNode::remove(Key k) {
   int idx = findKey(k); 
 
   // The key to be removed is present in this node 
-  if (idx < n && keys[idx] == k) { 
+  if (idx < n && keys[idx].getKey() == k.getKey()) { 
 
     // If the node is a leaf node - removeFromLeaf is called 
     // Otherwise, removeFromNonLeaf function is called 
@@ -43,7 +43,7 @@ void BTreeNode::remove(string k) {
 
     // If this node is a leaf node, then the key is not present in tree 
     if (leaf) { 
-      cout << "The key "<< k <<" is does not exist in the tree\n"; 
+      cout << "The key "<< k.getKey() <<" is does not exist in the tree\n"; 
       return; 
     } 
 
@@ -84,14 +84,14 @@ void BTreeNode::removeFromLeaf (int idx) {
 // A function to remove the idx-th key from this node - which is a non-leaf node 
 void BTreeNode::removeFromNonLeaf(int idx) { 
 
-  string k = keys[idx]; 
+  Key k = keys[idx]; 
 
   // If the child that precedes k (C[idx]) has atleast t keys, 
   // find the predecessor 'pred' of k in the subtree rooted at 
   // C[idx]. Replace k by pred. Recursively delete pred 
   // in C[idx] 
   if (C[idx]->n >= t) {
-    string pred = getPred(idx); 
+    Key pred = getPred(idx); 
     keys[idx] = pred; 
     C[idx]->remove(pred); 
   } 
@@ -102,7 +102,7 @@ void BTreeNode::removeFromNonLeaf(int idx) {
   // Replace k by succ 
   // Recursively delete succ in C[idx+1] 
   else if  (C[idx+1]->n >= t) { 
-    string succ = getSucc(idx); 
+    Key succ = getSucc(idx); 
     keys[idx] = succ; 
     C[idx+1]->remove(succ); 
   } 
@@ -119,7 +119,7 @@ void BTreeNode::removeFromNonLeaf(int idx) {
 } 
 
 // A function to get predecessor of keys[idx] 
-string BTreeNode::getPred(int idx) {
+Key BTreeNode::getPred(int idx) {
   // Keep moving to the right most node until we reach a leaf 
   BTreeNode *cur=C[idx]; 
   while (!cur->leaf) 
@@ -129,7 +129,7 @@ string BTreeNode::getPred(int idx) {
   return cur->keys[cur->n-1]; 
 }
 
-string BTreeNode::getSucc(int idx) {
+Key BTreeNode::getSucc(int idx) {
 
   // Keep moving the left most node starting from C[idx+1] until we reach a leaf 
   BTreeNode *cur = C[idx+1]; 
@@ -279,7 +279,7 @@ void BTreeNode::merge(int idx) {
 } 
 
 // The main function that inserts a new key in this B-Tree 
-void BTree::insert(string k) {
+void BTree::insert(Key k) {
   // If tree is empty 
   if (root == NULL) {
     // Allocate memory for root 
@@ -302,7 +302,7 @@ void BTree::insert(string k) {
       // New root has two children now.  Decide which of the 
       // two children is going to have new key 
       int i = 0; 
-      if (s->keys[0] < k) 
+      if (s->keys[0].getKey() < k.getKey()) 
         i++; 
       s->C[i]->insertNonFull(k); 
 
@@ -317,7 +317,7 @@ void BTree::insert(string k) {
 // A utility function to insert a new key in this node 
 // The assumption is, the node must be non-full when this 
 // function is called 
-void BTreeNode::insertNonFull(string k) { 
+void BTreeNode::insertNonFull(Key k) { 
   // Initialize index as index of rightmost element 
   int i = n-1; 
 
@@ -326,18 +326,18 @@ void BTreeNode::insertNonFull(string k) {
     // The following loop does two things 
     // a) Finds the location of new key to be inserted 
     // b) Moves all greater keys to one place ahead 
-    while (i >= 0 && keys[i] > k) {
+    while (i >= 0 && keys[i].getKey() > k.getKey()) {
       keys[i+1] = keys[i]; 
       i--; 
     } 
 
     // Insert the new key at found location 
-    keys[i+1] = k; 
+    keys[i+1] = k;
     n = n+1; 
   
   } else {  // If this node is not leaf  
     // Find the child which is going to have the new key 
-    while (i >= 0 && keys[i] > k) 
+    while (i >= 0 && keys[i].getKey() > k.getKey()) 
       i--; 
 
     // See if the found child is full 
@@ -348,7 +348,7 @@ void BTreeNode::insertNonFull(string k) {
       // After split, the middle key of C[i] goes up and 
       // C[i] is splitted into two.  See which of the two 
       // is going to have the new key 
-      if (keys[i+1] < k) 
+      if (keys[i+1].getKey() < k.getKey()) 
         i++; 
     } 
     C[i+1]->insertNonFull(k); 
@@ -406,7 +406,7 @@ void BTreeNode::traverse() {
     // traverse the subtree rooted with child C[i]. 
     if (leaf == false) 
       C[i]->traverse(); 
-    cout << " " << keys[i]; 
+    cout << " " << keys[i].getPos() << "-" << keys[i].getKey(); 
   } 
 
   // Print the subtree rooted with last child 
@@ -415,14 +415,14 @@ void BTreeNode::traverse() {
 } 
 
 // Function to search key k in subtree rooted with this node 
-BTreeNode *BTreeNode::search(string k) {
+BTreeNode *BTreeNode::search(Key k) {
   // Find the first key greater than or equal to k 
   int i = 0; 
-  while (i < n && k > keys[i]) 
+  while (i < n && k.getKey() > keys[i].getKey()) 
     i++; 
 
   // If the found key is equal to k, return this node 
-  if (keys[i] == k) 
+  if (keys[i].getKey() == k.getKey()) 
     return this; 
 
   // If key is not found here and this is a leaf node 
@@ -433,7 +433,7 @@ BTreeNode *BTreeNode::search(string k) {
   return C[i]->search(k); 
 } 
 
-void BTree::remove(string k) {
+void BTree::remove(Key k) {
   if (!root) {
     cout << "The tree is empty\n"; 
     return; 
@@ -455,4 +455,11 @@ void BTree::remove(string k) {
     delete tmp; 
   } 
   return; 
+}
+
+int BTree::findPos(Key k) {
+  BTreeNode * procurado = this->search(k);
+  int key_pos = procurado->findKey(k);
+
+  return procurado->keys[key_pos].getPos();
 }

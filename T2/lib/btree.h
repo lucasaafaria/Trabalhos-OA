@@ -6,11 +6,33 @@
 
 using namespace std; 
 
+class Key {
+public:
+  int    pos; // Key's position in the list file
+  string key; // Key's value
+
+  void setPos(int pos) {
+    this->pos = pos;
+  }
+
+  void setKey(string key) {
+    this->key = key;
+  }
+
+  int getPos() {
+    return pos;
+  }
+
+  string getKey() {
+    return key;
+  }
+};
+
 // A BTree node 
-class BTreeNode { 
+class BTreeNode {
   int         t;    // Minimum degree (defines the range for number of keys) 
   int         n;    // Current number of keys 
-  string     *keys; // An array of keys 
+  Key        *keys; // An array of keys 
   BTreeNode **C;    // An array of child pointers 
   bool        leaf; // Is true when node is leaf. Otherwise false 
 
@@ -22,16 +44,16 @@ public:
   void traverse(); 
 
   // A function to search a key in subtree rooted with this node. 
-  BTreeNode *search(string k);   // returns NULL if k is not present. 
+  BTreeNode *search(Key k);   // returns NULL if k is not present. 
 
   // A function that returns the index of the first key that is greater 
   // or equal to k 
-  int findKey(string k); 
+  int findKey(Key k); 
 
   // A utility function to insert a new key in the subtree rooted with 
   // this node. The assumption is, the node must be non-full when this 
   // function is called 
-  void insertNonFull(string k); 
+  void insertNonFull(Key k); 
 
   // A utility function to split the child y of this node. i is index 
   // of y in child array C[].  The Child y must be full when this 
@@ -40,7 +62,7 @@ public:
 
   // A wrapper function to remove the key k in subtree rooted with 
   // this node. 
-  void remove(string k); 
+  void remove(Key k); 
 
   // A function to remove the key present in idx-th position in 
   // this node which is a leaf 
@@ -52,11 +74,11 @@ public:
 
   // A function to get the predecessor of the key- where the key 
   // is present in the idx-th position in the node 
-  string getPred(int idx); 
+  Key getPred(int idx); 
 
   // A function to get the successor of the key- where the key 
   // is present in the idx-th position in the node 
-  string getSucc(int idx); 
+  Key getSucc(int idx); 
 
   // A function to fill up the child node present in the idx-th 
   // position in the C[] array if that child has less than t-1 keys 
@@ -97,15 +119,17 @@ public:
   } 
 
   // function to search a key in this tree 
-  BTreeNode* search(string k) { 
+  BTreeNode* search(Key k) { 
     return (root == NULL)? NULL : root->search(k); 
   } 
 
   // The main function that inserts a new key in this B-Tree 
-  void insert(string k); 
+  void insert(Key k); 
 
   // The main function that removes a new key in thie B-Tree 
-  void remove(string k); 
+  void remove(Key k);
+
+  int findPos(Key k);
 
 };
 
