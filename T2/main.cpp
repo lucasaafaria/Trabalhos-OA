@@ -46,7 +46,6 @@ void buildTree(BTree * tree) {
       key.setPos(cont);
       tree->insert(key);
       ++cont;
-      cout << cont << endl;
     }
 
   } else {
@@ -140,18 +139,23 @@ void inserir(BTree * tree) {
 }
 
 void remover(BTree * tree) {
-  int       num_reg; 
+  int       cont = 0;
+  int       num_reg;
+  char      tmp[TAM_REG+1];
   string    nome;
   string    matric;
   string    registro;
   string    chave;
-  ofstream  lista;
+  ifstream  lista;
+  ofstream  aux;
   Key       key;
   BTreeNode *procurado;
 
-  lista.open("lista.txt", ios::out);
 
-  if(lista.is_open()) {
+  lista.open("lista.txt", ios::in);
+  aux.open("aux.txt", ios::out);
+
+  if(lista.is_open() && aux.is_open()) {
     cout  << "Dados do registro a ser removido do arquivo:\n\nNome: ";
     getline(cin, nome);
     cout  << "Matrícula: ";
@@ -162,15 +166,25 @@ void remover(BTree * tree) {
     registro = nome + matric;
     chave = geraChave(registro);
     key.setKey(chave);
-    key.setPos(num_reg);
     procurado = tree->search(key);
 
     if (procurado != NULL) {
-      int pos = tree->findPos(key); 
+      int pos = tree->findPos(key);
       tree->remove(key);
-      lista.seekp(TAM_REG * pos);
-      for (int i = 0; i < TAM_REG; ++i)
-        lista << "*";
+      lista.seekg(0, ios::end);
+      int end = lista.tellg();
+      lista.seekg(0, ios::beg);
+      num_reg = end/TAM_REG;
+
+      while(cont < num_reg) {
+        lista.getline(tmp, TAM_REG);
+        if (cont != pos)
+          aux << tmp << endl;
+        cont++;
+      }
+
+      remove("lista.txt");
+      rename("aux.txt", "lista.txt");
     
     } else {
       cout << "Registro Inexistente" << endl;
@@ -180,6 +194,7 @@ void remover(BTree * tree) {
     cout << "Não foi possível abrir o arquivo" << endl;
   }
 
+  aux.close();
   lista.close();
 }
  
